@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "skills": [
+    {
+      "id": "btc-l1-route-operator",
+      "type": "operator",
+      "status": "active",
+      "protocols": ["hermetica", "stacks", "bitcoin"],
+      "tags": ["btc", "btc-l1", "redeem", "bridge"],
+      "routes": [
+        "hbtc_to_btc_l1",
+        "sbtc_to_btc_l1",
+        "btc_l1_to_sbtc",
+        "btc_l1_to_sbtc_to_usdcx"
+      ],
+      "dependsOn": ["protocol-incident-guard"]
+    },
+    {
+      "id": "protocol-incident-guard",
+      "type": "guard",
+      "status": "active",
+      "protocols": ["hermetica", "stacks", "bitcoin"],
+      "tags": ["guard", "incident", "health"],
+      "rules": [
+        "hermetica_redeem_not_protocol",
+        "bridge_manual_required",
+        "claim_unreachable"
+      ]
+    },
+    {
+      "id": "execution-policy-guard",
+      "type": "guard",
+      "status": "active",
+      "protocols": ["hermetica", "stacks", "bitcoin"],
+      "tags": ["guard", "policy", "execution"],
+      "routes": [
+        "hbtc_to_btc_l1"
+      ],
+      "dependsOn": [
+        "btc-l1-route-operator",
+        "protocol-incident-guard"
+      ]
+    }
+  ]
+}
