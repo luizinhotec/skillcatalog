@@ -13,8 +13,17 @@ const ROUTE_DEFINITIONS = {
         assetOut: 'btc_l1'
       },
       {
-        id: 'manual_bridge_fallback',
+        id: 'bridge_recovery',
         priority: 2,
+        enabled: true,
+        protocol: 'bridge_x',
+        operation: 'bridge_recovery_to_btc_l1',
+        assetIn: 'hbtc',
+        assetOut: 'btc_l1'
+      },
+      {
+        id: 'manual_bridge_fallback',
+        priority: 3,
         enabled: true,
         protocol: 'hermetica',
         operation: 'manual_recovery_to_btc_l1',
@@ -68,11 +77,23 @@ function ensureArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function resolveRouteVariant(routeDefinition) {
-  const variants = ensureArray(routeDefinition?.variants)
+function resolveAvailableVariants(routeDefinition) {
+  return ensureArray(routeDefinition?.variants)
     .filter((variant) => variant && variant.enabled !== false)
-    .sort((a, b) => (a.priority || 999) - (b.priority || 999));
+    .sort((a, b) => (a.priority || 999) - (b.priority || 999))
+    .map((variant) => ({
+      pathVariant: variant.id,
+      priority: variant.priority,
+      protocol: variant.protocol,
+      operation: variant.operation,
+      assetIn: variant.assetIn,
+      assetOut: variant.assetOut,
+      enabled: variant.enabled !== false
+    }));
+}
 
+function resolveRouteVariant(routeDefinition) {
+  const variants = resolveAvailableVariants(routeDefinition);
   return variants[0] || null;
 }
 
@@ -102,6 +123,7 @@ function buildStatePatch(result, previousState = {}) {
       assetOut: result.assetOut || null,
       pathVariant: result.pathVariant || null,
       variantPriority: result.variantPriority || null,
+      availableVariants: result.availableVariants || [],
       blockingSource: result.blockingSource || null,
       blockingHealthReason: result.blockingHealthReason || null,
       incidentType: result.incidentType || null
@@ -116,6 +138,7 @@ function buildStatePatch(result, previousState = {}) {
     assetOut: result.assetOut || null,
     pathVariant: result.pathVariant || null,
     variantPriority: result.variantPriority || null,
+    availableVariants: result.availableVariants || [],
     decision: result.decision,
     reason: result.reason,
     blockingSource: result.blockingSource || null,
@@ -144,7 +167,8 @@ function evaluate(payload = {}) {
     return null;
   }
 
-  const selectedVariant = resolveRouteVariant(routeDefinition);
+  const availableVariants = resolveAvailableVariants(routeDefinition);
+  const selectedVariant = availableVariants[0] || null;
 
   if (!selectedVariant) {
     return {
@@ -157,28 +181,19 @@ function evaluate(payload = {}) {
       assetOut: null,
       pathVariant: null,
       variantPriority: null,
+      availableVariants,
       decision: 'BLOCK',
       severity: 'high',
       reason: 'NO_ROUTE_VARIANT_AVAILABLE',
       blockingSource: 'routeDefinition',
-      blockingStatus: 'missing_variant',
-      blockingUpdatedAt: null,
       blockingHealthReason: 'no_enabled_variant',
       incidentType: null,
       detectedAt,
       statePatch: buildStatePatch({
         route,
-        protocol: null,
-        operation: null,
-        assetIn: null,
-        assetOut: null,
-        pathVariant: null,
-        variantPriority: null,
+        availableVariants,
         decision: 'BLOCK',
         reason: 'NO_ROUTE_VARIANT_AVAILABLE',
-        blockingSource: 'routeDefinition',
-        blockingHealthReason: 'no_enabled_variant',
-        incidentType: null,
         detectedAt
       }, state)
     };
@@ -200,14 +215,12 @@ function evaluate(payload = {}) {
       operation: selectedVariant.operation,
       assetIn: selectedVariant.assetIn,
       assetOut: selectedVariant.assetOut,
-      pathVariant: selectedVariant.id,
+      pathVariant: selectedVariant.pathVariant,
       variantPriority: selectedVariant.priority,
+      availableVariants,
       decision: 'BLOCK',
-      severity: 'high',
       reason: 'ROUTE_HEALTH_BLOCKED',
       blockingSource: 'routeHealthByRoute',
-      blockingStatus: routeHealth?.status || null,
-      blockingUpdatedAt: routeHealth?.updatedAt || null,
       blockingHealthReason: routeHealth?.reason || null,
       incidentType: routeHealth?.incidentType || lastIncident?.type || null,
       detectedAt
@@ -221,14 +234,12 @@ function evaluate(payload = {}) {
       operation: selectedVariant.operation,
       assetIn: selectedVariant.assetIn,
       assetOut: selectedVariant.assetOut,
-      pathVariant: selectedVariant.id,
+      pathVariant: selectedVariant.pathVariant,
       variantPriority: selectedVariant.priority,
+      availableVariants,
       decision: 'BLOCK',
-      severity: 'high',
       reason: 'PROTOCOL_HEALTH_BLOCKED',
       blockingSource: 'protocolHealthByProtocol',
-      blockingStatus: protocolHealth?.status || null,
-      blockingUpdatedAt: protocolHealth?.updatedAt || null,
       blockingHealthReason: protocolHealth?.reason || null,
       incidentType: protocolHealth?.incidentType || lastIncident?.type || null,
       detectedAt
@@ -242,16 +253,11 @@ function evaluate(payload = {}) {
       operation: selectedVariant.operation,
       assetIn: selectedVariant.assetIn,
       assetOut: selectedVariant.assetOut,
-      pathVariant: selectedVariant.id,
+      pathVariant: selectedVariant.pathVariant,
       variantPriority: selectedVariant.priority,
+      availableVariants,
       decision: 'ALLOW',
-      severity: 'info',
       reason: 'ROUTE_CLEAR',
-      blockingSource: null,
-      blockingStatus: null,
-      blockingUpdatedAt: null,
-      blockingHealthReason: null,
-      incidentType: null,
       detectedAt
     };
   }
@@ -274,6 +280,7 @@ module.exports = {
   skillId: 'btc-l1-route-operator',
   ROUTE_DEFINITIONS,
   resolveRouteVariant,
+  resolveAvailableVariants,
   evaluate,
   detect,
   operate

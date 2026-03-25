@@ -148,7 +148,20 @@ function main() {
       assetIn: 'hbtc',
       assetOut: 'btc_l1',
 
-      routeOperator: state.routeOperatorByRoute?.hbtc_to_btc_l1 || null,
+      // 🔥 CORREÇÃO
+      routeOperator: state.lastRouteOperation
+        ? {
+            route: state.lastRouteOperation.route,
+            status: state.lastRouteOperation.decision === 'BLOCK' ? 'blocked' : 'clear',
+            decision: state.lastRouteOperation.decision,
+            reason: state.lastRouteOperation.reason,
+            blockingSource: state.lastRouteOperation.blockingSource || null,
+            blockingHealthReason: state.lastRouteOperation.blockingHealthReason || null,
+            incidentType: state.lastRouteOperation.incidentType || null,
+            decidedAt: state.lastRouteOperation.detectedAt || new Date().toISOString()
+          }
+        : null,
+
       routeHealth: state.routeHealthByRoute?.hbtc_to_btc_l1 || null,
       protocolHealth: state.protocolHealthByProtocol?.hermetica || null,
       lastRouteOperation: state.lastRouteOperation || null,
