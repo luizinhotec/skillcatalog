@@ -1,0 +1,35 @@
+{
+  "route": "hbtc_to_btc_l1",
+  "state": {
+    "routeOperatorByRoute": {
+      "hbtc_to_btc_l1": {
+        "protocol": "hermetica"
+      }
+    },
+    "routeHealthByRoute": {
+      "hbtc_to_btc_l1": {
+        "status": "degraded",
+        "reason": "ROUTE_UNDERPERFORMING"
+      }
+    },
+    "protocolHealthByProtocol": {
+      "hermetica": {
+        "status": "healthy",
+        "reason": "PROTOCOL_CLEAR"
+      }
+    },
+    "routeScoreByRoute": {
+      "hbtc_to_btc_l1": {
+        "status": "degraded",
+        "reason": "ROUTE_SCORE_LOW",
+        "score": 35
+      }
+    },
+    "executionPolicyByRoute": {
+      "hbtc_to_btc_l1": {
+        "decision": "ALLOW",
+        "reason": "EXECUTION_POLICY_CLEAR"
+      }
+    }
+  }
+}
