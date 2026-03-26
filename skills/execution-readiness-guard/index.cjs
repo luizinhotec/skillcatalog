@@ -1,11 +1,45 @@
 'use strict';
 
+function isObject(value) {
+  return typeof value === 'object' && value !== null;
+}
+
+function buildUnknown(reason) {
+  return {
+    readiness: 'unknown',
+    eligible: false,
+    reason
+  };
+}
+
 function buildDecision(state, route) {
-  const routeOperator = state?.routeOperatorByRoute?.[route] || null;
-  const routeHealth = state?.routeHealthByRoute?.[route] || null;
-  const protocol = routeOperator?.protocol || null;
-  const protocolHealth = protocol ? (state?.protocolHealthByProtocol?.[protocol] || null) : null;
-  const routeScore = state?.routeScoreByRoute?.[route] || null;
+  const routeOperator = state?.routeOperatorByRoute?.[route] ?? null;
+  const routeHealth = state?.routeHealthByRoute?.[route] ?? null;
+  const routeScore = state?.routeScoreByRoute?.[route] ?? null;
+
+  if (!routeOperator) {
+    return buildUnknown('MISSING_ROUTE_OPERATOR');
+  }
+
+  if (!routeHealth) {
+    return buildUnknown('MISSING_ROUTE_HEALTH');
+  }
+
+  if (!routeScore) {
+    return buildUnknown('MISSING_ROUTE_SCORE');
+  }
+
+  const protocol = routeOperator?.protocol ?? null;
+
+  if (!protocol || !String(protocol).trim()) {
+    return buildUnknown('MISSING_PROTOCOL_REFERENCE');
+  }
+
+  const protocolHealth = state?.protocolHealthByProtocol?.[protocol] ?? null;
+
+  if (!protocolHealth) {
+    return buildUnknown('MISSING_PROTOCOL_HEALTH');
+  }
 
   if (routeOperator?.decision === 'BLOCK') {
     return {
@@ -46,60 +80,47 @@ function buildDecision(state, route) {
   };
 }
 
-function run(payload) {
-  const state = payload?.state || {};
-  const route = payload?.route || null;
-
-  if (!route) {
-    return {
-      ok: false,
-      error: 'MISSING_ROUTE'
-    };
-  }
-
-  const decision = buildDecision(state, route);
-  const decidedAt = new Date().toISOString();
-
-  const result = {
+function buildResultOk(route, decision) {
+  return {
     ok: true,
-    skillId: 'execution-readiness-guard',
+    skill: 'execution-readiness-guard',
     route,
     readiness: decision.readiness,
     eligible: decision.eligible,
-    reason: decision.reason,
-    decidedAt,
-    statePatch: {
-      executionReadinessByRoute: {
-        [route]: {
-          readiness: decision.readiness,
-          eligible: decision.eligible,
-          reason: decision.reason,
-          updatedAt: decidedAt
-        }
-      },
-      lastExecutionReadinessDecision: {
-        route,
-        readiness: decision.readiness,
-        eligible: decision.eligible,
-        reason: decision.reason,
-        decidedAt
-      },
-      executionReadinessHistory: [
-        {
-          route,
-          readiness: decision.readiness,
-          eligible: decision.eligible,
-          reason: decision.reason,
-          decidedAt
-        }
-      ]
-    }
+    reason: decision.reason
   };
+}
 
-  return result;
+function buildResultError(error) {
+  return {
+    ok: false,
+    skill: 'execution-readiness-guard',
+    error
+  };
+}
+
+function run(payload) {
+  if (!isObject(payload)) {
+    return buildResultError('INVALID_INPUT');
+  }
+
+  const route = payload.route;
+
+  if (typeof route !== 'string' || !route.trim()) {
+    return buildResultError('MISSING_ROUTE');
+  }
+
+  if (!isObject(payload.state)) {
+    return buildResultError('INVALID_STATE');
+  }
+
+  const decision = buildDecision(payload.state, route);
+  return buildResultOk(route, decision);
 }
 
 module.exports = {
   run,
-  buildDecision
+  buildDecision,
+  buildResultError,
+  buildResultOk
 };
