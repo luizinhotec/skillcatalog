@@ -1,238 +1,92 @@
-﻿\# Execution Readiness Guard — Agent Rules
+# Execution Readiness Guard
 
+## Purpose
 
+This skill evaluates whether a route is eligible for execution based on operational state.
 
-\## Purpose
+It acts as a deterministic execution gating layer that converts raw state into a strict readiness decision.
 
+This skill does not execute actions.
 
+## Decision Model
 
-This agent evaluates whether a route is eligible for execution based on operational state.
+Evaluation follows a strict ordered pipeline:
 
-
-
-It acts as a deterministic execution gating layer, converting raw state into a strict readiness decision.
-
-
-
-This agent does NOT execute actions.
-
-
-
-\---
-
-
-
-\## Decision Model
-
-
-
-Evaluation follows a strict, ordered pipeline:
-
-
-
-1\. Route Operator Decision
-
-2\. Route Health
-
-3\. Protocol Health
-
-4\. Route Score
-
-
+1. Route operator decision
+2. Route health
+3. Protocol health
+4. Route score
 
 The first blocking condition terminates evaluation immediately.
 
+## Decision Contract
 
+- `routeOperator.decision === "BLOCK"` blocks the route at operator level
+- `routeHealth.status === "blocked"` blocks the route
+- `protocolHealth.status === "blocked"` blocks the protocol
+- `routeScore.status === "degraded"` marks execution as degraded
 
-\---
+Important:
 
+- This skill does not use `routeOperator.status`
+- Only `routeOperator.decision` is considered for operator-level blocking
+- Missing or undefined fields must never be assumed safe
 
+## Decision Outcomes
 
-\## Decision Outcomes
+### Blocked
 
+Execution must be denied if any of the following conditions are met:
 
+- `routeOperator.decision === "BLOCK"`
+- `routeHealth.status === "blocked"`
+- `protocolHealth.status === "blocked"`
 
-\### BLOCK
+### Degraded
 
+Execution is not eligible but not fully blocked when:
 
+- `routeScore.status === "degraded"`
 
-Execution must be denied if ANY of the following conditions are met:
+### Ready
 
+Execution is eligible only when:
 
+- no blocked condition is present
+- no degraded condition is present
+- all required state inputs are valid
 
-\- routeOperator.decision == "BLOCK"
+### Unknown
 
-\- routeHealth.status == "blocked"
+Evaluation returns `unknown` with `eligible: false` when required route-specific state is missing:
 
-\- protocolHealth.status == "blocked"
+- route operator
+- route health
+- protocol reference
+- protocol health
+- route score
 
+## Safety Guarantees
 
+- Blocked routes are never eligible.
+- Degraded routes are never treated as safe.
+- Missing or invalid data is never assumed safe.
+- Output is deterministic for the same input.
+- No side effects or execution are performed by the skill contract.
 
-\---
+## Output Contract
 
+The skill returns strict JSON with:
 
+- `ok`
+- `skill`
+- `route` when evaluation runs
+- `readiness`
+- `eligible`
+- `reason`
 
-\### DEGRADED
+Invalid top-level input returns:
 
-
-
-Execution is NOT eligible but not fully blocked when:
-
-
-
-\- routeScore.status == "degraded"
-
-
-
-This represents a performance-based risk condition.
-
-
-
-\---
-
-
-
-\### READY
-
-
-
-Execution is eligible ONLY when:
-
-
-
-\- No BLOCK conditions are present
-
-\- No DEGRADED condition is present
-
-\- All required state inputs are valid
-
-
-
-\---
-
-
-
-\## Safety Guarantees
-
-
-
-\- Blocked routes are NEVER eligible
-
-\- Degraded routes are NEVER treated as safe
-
-\- Missing or invalid data is NEVER assumed safe
-
-\- Output is ALWAYS deterministic for the same input
-
-\- No side effects or execution are performed
-
-
-
-\---
-
-
-
-\## Refusal Conditions
-
-
-
-The agent MUST refuse evaluation if:
-
-
-
-\- route is missing
-
-\- state is missing or malformed
-
-\- required fields are undefined:
-
-&#x20; - routeOperator
-
-&#x20; - routeHealth
-
-&#x20; - protocolHealth
-
-&#x20; - routeScore
-
-
-
-Refusal must result in:
-
-
-
-\- eligible: false
-
-\- readiness: "unknown"
-
-\- reason explaining the failure
-
-
-
-\---
-
-
-
-\## Output Contract
-
-
-
-The agent MUST return strict JSON with:
-
-
-
-\- ok (boolean)
-
-\- route (string)
-
-\- readiness ("ready" | "degraded" | "blocked" | "unknown")
-
-\- eligible (boolean)
-
-\- reason (string)
-
-
-
-\---
-
-
-
-\## Autonomy Constraints
-
-
-
-\- Execution is NOT allowed without readiness evaluation
-
-\- BLOCK decisions cannot be overridden
-
-\- DEGRADED requires external approval (future extension)
-
-\- The agent operates as a pure decision layer
-
-
-
-\---
-
-
-
-\## Design Philosophy
-
-
-
-This agent is designed as a reusable infrastructure primitive.
-
-
-
-It enables:
-
-
-
-\- consistent execution gating across agents
-
-\- composability with other skills
-
-\- separation of decision vs execution
-
-
-
-This ensures safer and more predictable automation in competitive environments.
-
+- `ok: false`
+- `skill: "execution-readiness-guard"`
+- `error`

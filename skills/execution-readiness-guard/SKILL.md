@@ -2,7 +2,6 @@
 name: execution-readiness-guard
 description: Deterministic execution gating skill that classifies a route as ready, degraded, blocked, or unknown using operator, route health, protocol health, and route score signals.
 tags:
-  - risk
   - execution
   - safety
   - routing
@@ -14,12 +13,12 @@ tags:
 
 Execution Readiness Guard is an isolated, reusable skill that determines whether a route is eligible for execution.
 
-It evaluates four decision layers:
+It evaluates four decision layers in strict order:
 
-- route operator decision
-- route health
-- protocol health
-- route score
+1. route operator decision
+2. route health
+3. protocol health
+4. route score
 
 The skill returns a deterministic readiness result:
 
@@ -28,32 +27,22 @@ The skill returns a deterministic readiness result:
 - `blocked`
 - `unknown`
 
-It is designed to be used as an execution gating primitive inside routing and automation systems.
+Missing or invalid data is never assumed safe.
 
-## Why this matters
+## Decision Contract
 
-A route can be technically allowed and still be a poor execution candidate.
+- `routeOperator.decision === "BLOCK"` blocks the route at operator level
+- `routeHealth.status === "blocked"` blocks the route
+- `protocolHealth.status === "blocked"` blocks the protocol
+- `routeScore.status === "degraded"` marks execution as degraded
 
-This skill separates:
+Important:
 
-- technical permission
-- operational safety
-- execution quality
+- This skill does not use `routeOperator.status`
+- Only `routeOperator.decision` is considered for operator-level blocking
+- Missing or undefined fields must never be assumed safe
 
-That makes it useful as a reusable guardrail for any system that must decide whether execution should proceed.
-
-## Decision Order
-
-The evaluation order is strict:
-
-1. route operator decision
-2. route health
-3. protocol health
-4. route score
-
-Blocking conditions take priority over degraded conditions.
-
-## Inputs
+## Input
 
 ```json
 {
@@ -79,10 +68,26 @@ Blocking conditions take priority over degraded conditions.
     },
     "routeScoreByRoute": {
       "hbtc_to_btc_l1": {
-        "status": "degraded",
-        "reason": "ROUTE_UNDERPERFORMING",
-        "score": 29
+        "status": "healthy",
+        "reason": "ROUTE_SCORE_OK",
+        "score": 90
       }
     }
   }
 }
+```
+
+## Output
+
+```json
+{
+  "ok": true,
+  "skill": "execution-readiness-guard",
+  "route": "hbtc_to_btc_l1",
+  "readiness": "ready",
+  "eligible": true,
+  "reason": "EXECUTION_READY"
+}
+```
+
+If required data is missing, the skill returns `unknown` with `eligible: false` when evaluation can still proceed for the provided route, or an explicit top-level error when `route` or `state` is invalid.
