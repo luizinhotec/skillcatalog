@@ -1,0 +1,17 @@
+{
+  "input": {
+    "route": "sbtc_to_usdc",
+    "amountIn": 100000
+  },
+  "state": {
+    "marketQuotesByRoute": {
+      "sbtc_to_usdc": {
+        "accountingUnit": "usd_cents",
+        "expectedOut": 101200,
+        "feeBps": -1,
+        "slippageBps": 50
+      }
+    }
+  },
+  "now": "2026-03-27T00:00:00.000Z"
+}

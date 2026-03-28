@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "skill": "route-profitability-estimator",
+  "schemaVersion": "1.1.0",
+  "decision": {
+    "route": "large_safe_route",
+    "status": "UNPROFITABLE_AFTER_COSTS",
+    "profitable": false,
+    "eligible": false,
+    "reason": "NET_OUT_BELOW_AMOUNT_IN",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  },
+  "metrics": {
+    "costBasis": "amountIn",
+    "accountingUnit": "usd_cents",
+    "amountIn": 9000000000000000,
+    "expectedOut": 9000000009000000,
+    "feeBps": 1,
+    "slippageBps": 1,
+    "fee": 900000000000,
+    "slippage": 900000000000,
+    "totalCosts": 1800000000000,
+    "netOut": 8998200009000000,
+    "pnl": -1799991000000
+  },
+  "stateUpdates": {
+    "routeProfitabilityByRoute": {
+      "large_safe_route": {
+        "schemaVersion": "1.1.0",
+        "route": "large_safe_route",
+        "accountingUnit": "usd_cents",
+        "amountIn": 9000000000000000,
+        "expectedOut": 9000000009000000,
+        "costBasis": "amountIn",
+        "feeBps": 1,
+        "slippageBps": 1,
+        "fee": 900000000000,
+        "slippage": 900000000000,
+        "totalCosts": 1800000000000,
+        "netOut": 8998200009000000,
+        "pnl": -1799991000000,
+        "status": "UNPROFITABLE_AFTER_COSTS",
+        "profitable": false,
+        "eligible": false,
+        "evaluatedAt": "2026-03-27T00:00:00.000Z"
+      }
+    }
+  },
+  "auditEntry": {
+    "skill": "route-profitability-estimator",
+    "schemaVersion": "1.1.0",
+    "route": "large_safe_route",
+    "status": "UNPROFITABLE_AFTER_COSTS",
+    "reason": "NET_OUT_BELOW_AMOUNT_IN",
+    "profitable": false,
+    "eligible": false,
+    "pnl": -1799991000000,
+    "netOut": 8998200009000000,
+    "accountingUnit": "usd_cents",
+    "costBasis": "amountIn",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  }
+}

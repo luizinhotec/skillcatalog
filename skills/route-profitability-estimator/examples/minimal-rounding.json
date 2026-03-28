@@ -1,0 +1,17 @@
+{
+  "input": {
+    "route": "tiny_rounding_route",
+    "amountIn": 1
+  },
+  "state": {
+    "marketQuotesByRoute": {
+      "tiny_rounding_route": {
+        "accountingUnit": "usd_cents",
+        "expectedOut": 3,
+        "feeBps": 1,
+        "slippageBps": 1
+      }
+    }
+  },
+  "now": "2026-03-27T00:00:00.000Z"
+}

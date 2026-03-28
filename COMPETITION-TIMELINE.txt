@@ -1,0 +1,8 @@
+﻿Day 2 — 2026-03-26
+Skill: execution-readiness-guard
+PR: https://github.com/luizinhotec/bff-skills/pull/1
+Status: SUBMITTED
+Day 3 — 2026-03-27
+Skill: route-profitability-estimator
+PR: pr-day3-route-profitability-estimator.md
+Status: REVIEW PASSED / READY TO SUBMIT

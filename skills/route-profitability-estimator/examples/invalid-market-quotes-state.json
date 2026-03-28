@@ -1,0 +1,10 @@
+{
+  "input": {
+    "route": "sbtc_to_usdc",
+    "amountIn": 100000
+  },
+  "state": {
+    "marketQuotesByRoute": []
+  },
+  "now": "2026-03-27T00:00:00.000Z"
+}

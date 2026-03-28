@@ -1,0 +1,17 @@
+{
+  "input": {
+    "route": "large_safe_route",
+    "amountIn": 9000000000000000
+  },
+  "state": {
+    "marketQuotesByRoute": {
+      "large_safe_route": {
+        "accountingUnit": "usd_cents",
+        "expectedOut": 9000000009000000,
+        "feeBps": 1,
+        "slippageBps": 1
+      }
+    }
+  },
+  "now": "2026-03-27T00:00:00.000Z"
+}

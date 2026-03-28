@@ -1,134 +1,114 @@
-# BFF Skills — Staging Repo
+# Skill Catalog
 
-> **This is a staging repo.** for the AIBTC x BITFLOW DeFi Skill Competition. Submit your skill here via PR. Approved skills get pushed to the official [AIBTC skills registry](https://aibtc.com/skills).
+Catalogo de skills isoladas, reutilizaveis e composaveis.
 
----
+Este repositorio segue a direcao oficial:
 
-## The AIBTC × BFF Skills Competition
+- o sistema nao e um agente monolitico
+- o runtime e fino e so orquestra
+- toda regra nova nasce como skill
+- o estado compartilhado e a interface entre skills
 
-**$100/day in BTC** to the best DeFi skill submitted. 30 days. On-chain proof required. Best skill each day wins.
+## Estrutura oficial
 
-**Bonus:** +$1,000 BTC pool for skills that directly integrate HODLMM.
-
-- **Announce:** Monday, March 23
-- **Submissions open:** Wednesday, March 25
-- **Prize paid in:** BTC, automatically on approval
-
----
-
-## Skill Categories
-
-Submit in any of these categories — broad by design:
-
-- **Trading** — swaps, arb detection, price impact, execution logic
-- **Yield** — LP management, fee harvesting, yield dashboards, rebalance strategies
-- **Infrastructure** — escrow, oracles, agent-to-agent comms, data freshness monitors
-- **Signals** — market signals, risk alerts, portfolio monitoring, trade rationale
-
----
-
-## How to Submit
-
-### 1. Fork this repo
-
-### 2. Create your skill directory
-
-```
+```text
+runtime/
+  orchestrator.cjs
 skills/
-└── your-skill-name/
-    ├── SKILL.md
-    ├── AGENT.md
-    └── your-skill-name.ts
+  <skill-name>/
+    SKILL.md
+    AGENT.md
+    index.cjs
+    test-input.json
+state/
+  skill-state.json
 ```
 
-Follow the [`SKILL_TEMPLATE.md`](./SKILL_TEMPLATE.md) exactly — the AIBTC validator will reject submissions with missing or malformed frontmatter.
+## Contrato de execucao
 
-### 3. Validate before you open a PR
+Cada skill recebe um payload com:
+
+```json
+{
+  "input": {},
+  "state": {},
+  "now": "2026-03-27T00:00:00.000Z"
+}
+```
+
+Cada skill responde com:
+
+```json
+{
+  "ok": true,
+  "skill": "example-skill",
+  "decision": {},
+  "stateUpdates": {},
+  "auditEntry": {}
+}
+```
+
+Regras obrigatorias:
+
+- a skill deve ser executavel isoladamente
+- a skill nao depende diretamente de outra skill
+- a skill nao executa efeitos externos irreversiveis
+- a skill le do estado e escreve no estado de forma rastreavel
+- a skill deve ser deterministica para o mesmo `input` + `state` + `now`
+
+## Runtime
+
+O runtime oficial esta em [`runtime/orchestrator.cjs`](/C:/dev/skillcatalog/runtime/orchestrator.cjs).
+
+Ele faz apenas quatro coisas:
+
+1. le `input` e `state`
+2. carrega a skill selecionada
+3. executa a skill
+4. aplica `stateUpdates` no arquivo de estado e registra auditoria
+
+Ele nao contem regra de negocio.
+
+O runtime deve ser usado de forma serial sobre o mesmo arquivo de estado.
+
+## Como executar
+
+Exemplo com a skill `execution-readiness-guard`:
 
 ```bash
-bun run scripts/validate-frontmatter.ts
-bun run scripts/generate-manifest.ts
-bun run skills/your-skill-name/your-skill-name.ts doctor
+node runtime/orchestrator.cjs execution-readiness-guard skills/execution-readiness-guard/test-input.json state/skill-state.json
 ```
 
-Attach the output of these commands in your PR description.
+Exemplo com a skill `zest-yield-manager`:
 
-### 4. Open a Pull Request
+```bash
+node runtime/orchestrator.cjs zest-yield-manager skills/zest-yield-manager/test-input.json state/skill-state.json
+```
 
-Use the PR template — it auto-fills when you open one. Required fields:
+Exemplo com a skill `bitflow-hodlmm-manager`:
 
-- What the skill does
-- On-chain proof (tx link or live output) — **no proof = not reviewed**
-- Whether it integrates HODLMM (eligible for +$1K bonus pool)
-- Smoke test results
+```bash
+node runtime/orchestrator.cjs bitflow-hodlmm-manager skills/bitflow-hodlmm-manager/test-input.json state/skill-state.json
+```
 
-### 5. Review & approval
+Exemplo com a skill `route-profitability-estimator`:
 
-PRs are reviewed by the BFF Army council (humans + a Bitflow agent). Expect feedback within 24 hours. Fix requested changes fast — reviewer responsiveness is part of the process.
+```bash
+node skills/route-profitability-estimator/validate-examples.cjs
+```
 
-### 6. Winners
+Ou executar pelo runtime com um fixture:
 
-Daily winners are announced on [@Bitflow](https://twitter.com/Bitflow) and listed at [bff.army/agents.txt](https://bff.army/agents.txt). Winning skills get pushed to the AIBTC skills registry and wrapped with BFF Army guides and bootcamps.
+```bash
+node runtime/orchestrator.cjs route-profitability-estimator skills/route-profitability-estimator/examples/profitable.json state/skill-state.json
+```
 
----
+## O que mudou
 
-## Judging Criteria
+O repositorio foi corrigido para remover desvios da direcao oficial:
 
-| Criteria | What we're looking for |
-|---|---|
-| **Reliability** | Idempotent reruns, safe defaults, handles errors explicitly |
-| **Security** | No secret leakage, clear warnings on writes or fund movements |
-| **Structure** | Valid SKILL.md frontmatter, AGENT.md behavior rules, JSON output contract |
-| **Proof** | On-chain tx or live command output proving it works end-to-end |
-| **HODLMM integration** | Eligible for the +$1K bonus pool |
-
----
-
-## Resources
-
-- [SKILL_TEMPLATE.md](./SKILL_TEMPLATE.md) — required format for all submissions
-- [AIBTC Skills Registry](https://aibtc.com/skills) — where approved skills are published
-- [BFF Army](https://bff.army) — guides, courses, and bootcamps for winning skills
-- [bff.army/agents.txt](https://bff.army/agents.txt) — daily winners and competition updates
-- [HODLMM](https://bitflow.finance) — the liquidity infrastructure your skills can plug into
-
----
-
-## Registry Compatibility
-
-This staging repo feeds into the official [AIBTC skills registry](https://github.com/aibtcdev/skills). All approved skills are promoted there. To avoid conversion friction during promotion:
-
-### Frontmatter format
-
-Your `SKILL.md` **must** use the `metadata:` nested format — not flat keys. See `SKILL_TEMPLATE.md` for the exact schema. The most common CI failures:
-
-- `tags` and `requires` must be **comma-separated quoted strings**, not YAML arrays
-- `user-invocable` must be the **string** `"false"`, not a boolean
-- `entry` must be **repo-root-relative** (e.g. `your-skill-name/your-skill-name.ts`, not `skills/your-skill-name/...`)
-- `AGENT.md` must start with YAML frontmatter containing `name`, `skill`, and `description`
-
-### CLI pattern
-
-Use [Commander.js](https://github.com/tj/commander.js) for argument parsing. See `SKILL_TEMPLATE.md` §3 for the pattern.
-
-### Error output
-
-Registry minimum: `{ "error": "descriptive message" }` for errors. See `SKILL_TEMPLATE.md` output contract section.
-
-### Post-approval promotion
-
-After a skill wins and is pushed to aibtcdev/skills:
-
-1. Skill directory moves to repo root (no `skills/` prefix)
-2. A row is added to the aibtcdev/skills README.md skills table
-3. `bun run manifest` regenerates `skills.json`
-4. `bun run typecheck` must pass
-5. Commit format: `feat(skill-name): add skill-name skill`
-
-For the full target conventions, see [aibtcdev/skills CONTRIBUTING.md](https://github.com/aibtcdev/skills/blob/main/CONTRIBUTING.md).
-
----
-
-## Questions
-
-Open an issue or find us in the [Bitflow Discord](https://discord.gg/bitflow).
+- skills deixaram de agir como CLIs monoliticas com regras internas extensas
+- logica de decisao saiu de fluxos acoplados a comandos e foi para skills isoladas
+- runtime explicito foi adicionado e mantido fino
+- estado foi promovido a interface principal entre skills
+- documentacao e template foram alinhados ao padrao oficial
