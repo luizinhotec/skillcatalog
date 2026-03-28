@@ -1,10 +1,13 @@
 {
-  "route": "sbtc_to_usdc",
-  "amountIn": 100000,
+  "input": {
+    "route": "sbtc_to_usdc",
+    "amountIn": 100000
+  },
   "state": {
     "marketQuotesByRoute": {
       "sbtc_to_usdc": {
-        "expectedOut": 98000,
+        "accountingUnit": "usd_cents",
+        "expectedOut": 99800,
         "feeBps": 30,
         "slippageBps": 50
       }

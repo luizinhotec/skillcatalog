@@ -9,7 +9,7 @@
         "accountingUnit": "usd_cents",
         "expectedOut": 101200,
         "feeBps": 30,
-        "slippageBps": 50
+        "slippageBps": 10001
       }
     }
   },

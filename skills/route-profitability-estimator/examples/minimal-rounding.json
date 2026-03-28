@@ -1,15 +1,15 @@
 {
   "input": {
-    "route": "sbtc_to_usdc",
-    "amountIn": 100000
+    "route": "tiny_rounding_route",
+    "amountIn": 1
   },
   "state": {
     "marketQuotesByRoute": {
-      "sbtc_to_usdc": {
+      "tiny_rounding_route": {
         "accountingUnit": "usd_cents",
-        "expectedOut": 101200,
-        "feeBps": 30,
-        "slippageBps": 50
+        "expectedOut": 3,
+        "feeBps": 1,
+        "slippageBps": 1
       }
     }
   },

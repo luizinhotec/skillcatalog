@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "skill": "route-profitability-estimator",
+  "schemaVersion": "1.1.0",
+  "decision": {
+    "route": "missing_route",
+    "status": "UNKNOWN",
+    "profitable": null,
+    "eligible": false,
+    "reason": "MISSING_ROUTE_QUOTE",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  },
+  "metrics": {
+    "costBasis": "amountIn"
+  },
+  "stateUpdates": {
+    "routeProfitabilityByRoute": {
+      "missing_route": {
+        "schemaVersion": "1.1.0",
+        "route": "missing_route",
+        "status": "UNKNOWN",
+        "profitable": null,
+        "eligible": false,
+        "evaluatedAt": "2026-03-27T00:00:00.000Z"
+      }
+    }
+  },
+  "auditEntry": {
+    "skill": "route-profitability-estimator",
+    "schemaVersion": "1.1.0",
+    "route": "missing_route",
+    "status": "UNKNOWN",
+    "reason": "MISSING_ROUTE_QUOTE",
+    "profitable": null,
+    "eligible": false,
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  }
+}

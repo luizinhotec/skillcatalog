@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "skill": "route-profitability-estimator",
+  "schemaVersion": "1.1.0",
+  "decision": {
+    "route": "sbtc_to_usdc",
+    "status": "PROFITABLE",
+    "profitable": true,
+    "eligible": true,
+    "reason": "NET_OUT_ABOVE_AMOUNT_IN",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  },
+  "metrics": {
+    "costBasis": "amountIn",
+    "accountingUnit": "usd_cents",
+    "amountIn": 100000,
+    "expectedOut": 101200,
+    "feeBps": 30,
+    "slippageBps": 50,
+    "fee": 300,
+    "slippage": 500,
+    "totalCosts": 800,
+    "netOut": 100400,
+    "pnl": 400
+  },
+  "stateUpdates": {
+    "routeProfitabilityByRoute": {
+      "sbtc_to_usdc": {
+        "schemaVersion": "1.1.0",
+        "route": "sbtc_to_usdc",
+        "accountingUnit": "usd_cents",
+        "amountIn": 100000,
+        "expectedOut": 101200,
+        "costBasis": "amountIn",
+        "feeBps": 30,
+        "slippageBps": 50,
+        "fee": 300,
+        "slippage": 500,
+        "totalCosts": 800,
+        "netOut": 100400,
+        "pnl": 400,
+        "status": "PROFITABLE",
+        "profitable": true,
+        "eligible": true,
+        "evaluatedAt": "2026-03-27T00:00:00.000Z"
+      }
+    }
+  },
+  "auditEntry": {
+    "skill": "route-profitability-estimator",
+    "schemaVersion": "1.1.0",
+    "route": "sbtc_to_usdc",
+    "status": "PROFITABLE",
+    "reason": "NET_OUT_ABOVE_AMOUNT_IN",
+    "profitable": true,
+    "eligible": true,
+    "pnl": 400,
+    "netOut": 100400,
+    "accountingUnit": "usd_cents",
+    "costBasis": "amountIn",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  }
+}

@@ -8,7 +8,7 @@
       "sbtc_to_usdc": {
         "accountingUnit": "usd_cents",
         "expectedOut": 101200,
-        "feeBps": 30,
+        "feeBps": -1,
         "slippageBps": 50
       }
     }

@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "skill": "route-profitability-estimator",
+  "schemaVersion": "1.1.0",
+  "decision": {
+    "route": "tiny_rounding_route",
+    "status": "BREAK_EVEN",
+    "profitable": false,
+    "eligible": true,
+    "reason": "NET_OUT_EQUALS_AMOUNT_IN",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  },
+  "metrics": {
+    "costBasis": "amountIn",
+    "accountingUnit": "usd_cents",
+    "amountIn": 1,
+    "expectedOut": 3,
+    "feeBps": 1,
+    "slippageBps": 1,
+    "fee": 1,
+    "slippage": 1,
+    "totalCosts": 2,
+    "netOut": 1,
+    "pnl": 0
+  },
+  "stateUpdates": {
+    "routeProfitabilityByRoute": {
+      "tiny_rounding_route": {
+        "schemaVersion": "1.1.0",
+        "route": "tiny_rounding_route",
+        "accountingUnit": "usd_cents",
+        "amountIn": 1,
+        "expectedOut": 3,
+        "costBasis": "amountIn",
+        "feeBps": 1,
+        "slippageBps": 1,
+        "fee": 1,
+        "slippage": 1,
+        "totalCosts": 2,
+        "netOut": 1,
+        "pnl": 0,
+        "status": "BREAK_EVEN",
+        "profitable": false,
+        "eligible": true,
+        "evaluatedAt": "2026-03-27T00:00:00.000Z"
+      }
+    }
+  },
+  "auditEntry": {
+    "skill": "route-profitability-estimator",
+    "schemaVersion": "1.1.0",
+    "route": "tiny_rounding_route",
+    "status": "BREAK_EVEN",
+    "reason": "NET_OUT_EQUALS_AMOUNT_IN",
+    "profitable": false,
+    "eligible": true,
+    "pnl": 0,
+    "netOut": 1,
+    "accountingUnit": "usd_cents",
+    "costBasis": "amountIn",
+    "evaluatedAt": "2026-03-27T00:00:00.000Z"
+  }
+}

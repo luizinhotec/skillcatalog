@@ -7,9 +7,9 @@
     "marketQuotesByRoute": {
       "sbtc_to_usdc": {
         "accountingUnit": "usd_cents",
-        "expectedOut": 101200,
-        "feeBps": 30,
-        "slippageBps": 50
+        "expectedOut": 100000,
+        "feeBps": 10000,
+        "slippageBps": 0
       }
     }
   },
